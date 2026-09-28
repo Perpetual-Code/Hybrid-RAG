@@ -13,8 +13,8 @@ from tqdm import tqdm
 # NOTE DIRECTORY PATH
 ROOT_DIR = Path(__file__).resolve().parent
 DATA_DIR = ROOT_DIR / "data" / "fiqa"
-INDEX_DIR = ROOT_DIR / "indexes"
-CHECKPOINT_DIR = INDEX_DIR
+DENSE_DIR = ROOT_DIR / "indexes" / "dense"
+CHECKPOINT_DIR = DENSE_DIR
 
 # print(ROOT_DIR)
 
@@ -78,7 +78,7 @@ def build_index(texts: list[str], batch_size: int = 256) -> np.ndarray:
 # NOTE Dense Search
 def dense_search(query_text: str, embed_doc: np.ndarray, k: int = 10):
     client = create_client()
-    embed_query = client.embed_documents([query_text])
+    embed_query = client.embed_documents([query_text])[0]
     query_vector = np.asarray(embed_query, dtype=np.float32)
     normalized_embed_doc = query_vector / np.linalg.norm(query_vector, keepdims=True)
     scores = embed_doc @ normalized_embed_doc
@@ -89,17 +89,19 @@ def dense_search(query_text: str, embed_doc: np.ndarray, k: int = 10):
 # NOTE Main
 def main():
     Query = "Where should I park my rainy-day funds?"
-    if (CHECKPOINT_DIR / "embeddings.npy").exists():
-        final_embedding = np.load(CHECKPOINT_DIR / "embeddings.npy")
+    final_embedding_path = DENSE_DIR / "embeddings.npy"
+    if final_embedding_path.exists():
+        final_embedding = np.load(final_embedding_path)
         print("Embedding loaded")
     else:
         CHECKPOINT_DIR.mkdir(exist_ok=True, parents=True)
         print("Embedding documents")
         final_embedding = build_index(docs_text)
-        np.save(CHECKPOINT_DIR / "embedding.npy", final_embedding)
-        final_embedding_normalized = final_embedding / np.linalg.norm(
-            final_embedding, keepdims=True
-        )
+        np.save(final_embedding_path, final_embedding)
+        print("Embeddings saved")
+    final_embedding_normalized = final_embedding / np.linalg.norm(
+        final_embedding, keepdims=True, axis=1
+    )
 
     for i, (doc_id, score) in enumerate(
         dense_search(embed_doc=final_embedding_normalized, query_text=Query, k=5), 1

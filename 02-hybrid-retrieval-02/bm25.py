@@ -25,11 +25,11 @@ else:
     retriever = bm25s.BM25()
     retriever.index(tokens)
     # NOTE Save Retriever
-    retriever.save(INDEX_DIR, corpus=docs_id)
+    retriever.save(str(INDEX_DIR), corpus=docs_id)
 
 file = INDEX_DIR / "docs.txt"
 if not file.exists():
-    file.write_text("/n".join(docs_id))
+    file.write_text("\n".join(docs_id))
 
 
 # NOTE Create Bm25Search

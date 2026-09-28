@@ -49,22 +49,22 @@ class DenseRetriever:
         self.client = create_client()
         self.corpus = load_corpus()
         self.raw = np.load(EMBEDDING_PATH)
-        self._docs_id = (DENSE_DIR / "docs.txt").read_text().splitlines()
+        self._docs_id = self.corpus["_id"].tolist()
         self.normalized_embedding = self.raw / np.linalg.norm(
             self.raw, axis=1, keepdims=True
         )
 
     # INFO Embed Query
     def embed_query(self, query: str) -> np.ndarray:
-        response = self.client.embed_documents([query])
-        normalized_query = np.asarray(response, dtype=np.float32) / np.linalg.norm(
-            np.asarray(response, dtype=np.float32), keepdims=True
-        )
+        response = self.client.embed_documents([query])[0]
+        query_vector = np.asarray(response, dtype=np.float32)
+        normalized_query = query_vector / np.linalg.norm(query_vector, keepdims=True)
+
         return normalized_query
 
     # INFO DENSE Search
     def dense_search(self, query: str, k: int = 10):
         normalized_query = self.embed_query(query)
-        scores = normalized_query @ self.normalized_embedding
+        scores = self.normalized_embedding @ normalized_query
         top_k = np.argsort(-scores)[:k]
         return [(self._docs_id[i], float(scores[i])) for i in top_k]
