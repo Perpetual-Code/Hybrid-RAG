@@ -1,0 +1,16 @@
+requests
+minsearch
+jupyter
+python-dotenv
+groq
+numpy
+pandas
+datasets
+pyarrow
+tqdm
+bm25s
+langchain-nvidia-ai-endpoints
+openrouter
+huggingface-hub
+google-genai
+langchain-huggingface
