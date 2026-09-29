@@ -22,7 +22,7 @@ def rrf(
     scores: dict[str, float] = defaultdict(float)
     for ranking in rankings:
         for rank, doc_id in enumerate(ranking, start=1):
-            scores[doc_id] += 1 / (k + rank)
+            scores[doc_id] += 1.0 / (k + rank)
     return sorted(scores.items(), key=lambda x: -x[1])
 
 
@@ -38,7 +38,7 @@ def show(label: str, results: list[tuple[str, float]]) -> None:
     print(f"\n{label}\n")
     for i, (doc_id, score) in enumerate(results[:5], 1):
         text = corpus.loc[corpus["_id"] == doc_id, "text"].iloc[0]
-        print(f"{i} [{score:.3f} {doc_id} {text:50}]\n")
+        print(f"{i} [{score:.5f} {doc_id} {text[:100]}]\n")
 
 
 if __name__ == "__main__":
@@ -48,4 +48,4 @@ if __name__ == "__main__":
 
     show("BM25 only", bm25.bm25_search(query, k=5))
     show("Dense only", dense.dense_search(query, k=5))
-    show("Hybrid -RRF", hybrid_search(query, k=5))
+    show("Hybrid Only", hybrid_search(query, k=5))
