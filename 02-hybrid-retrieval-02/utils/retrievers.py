@@ -47,12 +47,10 @@ class BM25Retriever:
 class DenseRetriever:
     def __init__(self) -> None:
         self.client = create_client()
-        self.corpus = load_corpus()
-        self.raw = np.load(EMBEDDING_PATH)
-        self._docs_id = self.corpus["_id"].tolist()
-        self.normalized_embedding = self.raw / np.linalg.norm(
-            self.raw, axis=1, keepdims=True
-        )
+        corpus = load_corpus()
+        raw = np.load(EMBEDDING_PATH)
+        self._docs_id = corpus["_id"].tolist()
+        self.normalized_embedding = raw / np.linalg.norm(raw, axis=1, keepdims=True)
 
     # INFO Embed Query
     def embed_query(self, query: str) -> np.ndarray:

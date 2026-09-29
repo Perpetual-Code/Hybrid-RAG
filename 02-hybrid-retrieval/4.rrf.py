@@ -1,14 +1,18 @@
 from collections import defaultdict
-from utils.retrievers import BM25Retriever,DenseRetriever,load_corpus
 
-K_RRF=60
+from utils.retrievers import BM25Retriever, DenseRetriever, load_corpus
 
-def reciprocal_rank_fusion(rankings:list[list[str]],k:int=K_RRF)->list[tuple[str,float]]:
-    scores:dict[str,float]=defaultdict(float)
+K_RRF = 60
+
+
+def reciprocal_rank_fusion(
+    rankings: list[list[str]], k: int = K_RRF
+) -> list[tuple[str, float]]:
+    scores: dict[str, float] = defaultdict(float)
     for ranking in rankings:
-        for rank,doc_id in enumerate(ranking,start=1):
-            scores[doc_id]+=1.0/(k+rank)
-    return sorted(scores.items(),key=lambda x:-x[1])
+        for rank, doc_id in enumerate(ranking, start=1):
+            scores[doc_id] += 1.0 / (k + rank)
+    return sorted(scores.items(), key=lambda x: -x[1])
 
 
 # --------------------------------------------------------------
@@ -33,7 +37,7 @@ def show(label: str, results: list[tuple[str, float]]) -> None:
     print(f"\n{label}")
     for i, (doc_id, score) in enumerate(results[:5], 1):
         text = corpus.loc[corpus["_id"] == doc_id, "text"].iloc[0]
-        print(f"  {i}. [{score:.4f}] {doc_id}  {text[:70]}")
+        print(f"  {i}. [{score:.4f}] {doc_id}  {text}")
 
 
 if __name__ == "__main__":
