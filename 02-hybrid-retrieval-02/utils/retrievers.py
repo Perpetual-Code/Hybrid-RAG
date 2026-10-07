@@ -48,7 +48,8 @@ class DenseRetriever:
     def __init__(self) -> None:
         self.client = create_client()
         corpus = load_corpus()
-        raw = np.load(EMBEDDING_PATH)
+        # n_docs = len(corpus)
+        raw = np.load(EMBEDDING_PATH, mmap_mode="r")
         self._docs_id = corpus["_id"].tolist()
         self.normalized_embedding = raw / np.linalg.norm(raw, axis=1, keepdims=True)
 
